@@ -1,6 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import {window, workspace, commands, Disposable, ExtensionContext, StatusBarAlignment, StatusBarItem, TextDocument} from 'vscode';
+import {window, workspace, commands, Disposable, ExtensionContext, StatusBarAlignment, StatusBarItem, TextDocument, Selection} from 'vscode';
 
 // this method is called when your extension is activated. activation is
 // controlled by the activation events defined in package.json
@@ -31,36 +31,41 @@ export class WordCounter {
             this._statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left);
         } 
 
-        // Get the current text editor
-        let editor = window.activeTextEditor;
-        if (!editor) {
+		let editor = window.activeTextEditor;
+		if (!editor) {
+			this._statusBarItem.hide();
+			return;
+		}
+
+		// Only update status if an MD file
+		let document = editor.document;
+		if (document.languageId !== "markdown") {
             this._statusBarItem.hide();
             return;
-        }
+		}
 
-        let doc = editor.document;
+		let selectionText = document.getText(editor.selection);
+		if (selectionText === "") {
+			this._statusBarItem.hide();
+			return;
+		}
 
-        // Only update status if an MD file
-        if (doc.languageId === "markdown") {
-            let wordCount = this._getWordCount(doc);
+		let wordCount = this._getWordCount(selectionText);
+		console.log(document.languageId);
 
-            // Update the status bar
-            this._statusBarItem.text = wordCount !== 1 ? `$(pencil) ${wordCount} Words` : '$(pencil) 1 Word';
-            this._statusBarItem.show();
-        } else {
-            this._statusBarItem.hide();
-        }
+		// Update the status bar
+		this._statusBarItem.text = wordCount !== 1 ? `$(pencil) ${wordCount} Words` : '$(pencil) 1 Word';
+		this._statusBarItem.show();
     }
 
-    public _getWordCount(doc: TextDocument): number {
-        let docContent = doc.getText();
-
+    public _getWordCount(content: string): number {
         // Parse out unwanted whitespace so the split is accurate
-        docContent = docContent.replace(/(< ([^>]+)<)/g, '').replace(/\s+/g, ' ');
-        docContent = docContent.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+        content = content.replace(/(< ([^>]+)<)/g, '').replace(/\s+/g, ' ');
+		content = content.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+
         let wordCount = 0;
-        if (docContent != "") {
-            wordCount = docContent.split(" ").length;
+        if (content != "") {
+            wordCount = content.split(" ").length;
         }
 
         return wordCount;
