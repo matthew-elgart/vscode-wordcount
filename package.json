@@ -1,7 +1,7 @@
 {
 	"name": "wordcount",
 	"displayName": "Word Count",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"publisher": "ms-vscode",
 	"description": "Markdown Word Count Example - a status bar contribution that reports out the number of words in a Markdown document as you interact with it.",
 	"author": {
@@ -17,7 +17,8 @@
 		"theme": "dark"
 	},
 	"activationEvents": [
-		"onLanguage:markdown"
+		"onLanguage:markdown",
+		"onLanguage:plaintext"
 	],
 	"repository": {
 		"type": "git",

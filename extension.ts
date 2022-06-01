@@ -28,7 +28,13 @@ export class WordCounter {
         
         // Create as needed
         if (!this._statusBarItem) {
-            this._statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left);
+			// set the status bar item to be to the right of the VSCodeVim one (since it only appears
+			// conditionally).
+			// VSCodeVim sets its status bar item at priority Number.MIN_SAFE_INTEGER to ensure it is the
+			// rightmost item on the left:
+			// https://github.com/VSCodeVim/Vim/blob/a4656a6e53a81e1ae4e2406f81ad831afffd0a18/src/statusBar.ts#L23
+			// A bit frustrating it takes that priority for itself, but doing this seemed to work.
+            this._statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, Number.MIN_SAFE_INTEGER - 1);
         } 
 
 		let editor = window.activeTextEditor;
@@ -39,7 +45,7 @@ export class WordCounter {
 
 		// Only update status if an MD file
 		let document = editor.document;
-		if (document.languageId !== "markdown") {
+		if (document.languageId !== "markdown" && document.languageId !== "plaintext") {
             this._statusBarItem.hide();
             return;
 		}
